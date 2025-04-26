@@ -2,773 +2,371 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能点名系统</title>
-    <style>
-        * {
+    <title>随机数生成屋 | Random Number Generator</title>
+    <style type="text/css">
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --accent-color: #ff9e3f;
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-color);
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
         }
-        body {
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
+        
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
             padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
+            padding: 20px;
+            margin-bottom: 30px;
             text-align: center;
-            color: #333;
-            margin-bottom: 20px;
         }
-        .controls {
+        
+        h1 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+        
+        .card-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
             color: white;
             border: none;
+            padding: 12px 24px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 10px 5px;
         }
-        button:hover {
-            background-color: #45a049;
-        }
-        button:active {
-            background-color: #3e8e41;
-        }
-        .active {
-            background-color: #2196F3;
-        }
-        .students-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .student-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .student {
-            padding: 8px 15px;
-            background-color: #e0e0e0;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            display: flex;
-            align-items: center;
-            max-width: 150px;
-        }
-        .student:hover {
-            transform: scale(1.05);
-            background-color: #d0d0d0;
-        }
-        .student-score {
-            margin-left: 5px;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-        .selected-student {
-            background-color: #ffe082;
-            font-weight: bold;
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
             transform: scale(1.05);
         }
-        .controls-group {
-            margin-bottom: 15px;
+        
+        .btn:active {
+            transform: scale(0.98);
         }
-        .controls-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+        
+        .btn-accent {
+            background-color: var(--accent-color);
         }
-        input[type="text"], select {
-            padding: 8px;
+        
+        .btn-accent:hover {
+            background-color: #ff8c1a;
+        }
+        
+        input {
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            width: 100%;
-            max-width: 300px;
-        }
-        .result-container {
+            font-size: 1rem;
+            margin: 10px 0;
+            width: 80px;
             text-align: center;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 24px;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .result-name {
-            font-weight: bold;
-            color: #e74c3c;
-            font-size: 36px;
-        }
-        .result-score {
-            margin-left: 10px;
-            font-weight: bold;
-            color: #333;
-            font-size: 24px;
-        }
-        .settings-toggle {
-            margin-bottom: 15px;
-            text-align: right;
-        }
-        .settings-panel {
-            background-color: #f9f9f9;
+        
+        .result {
+            min-height: 50px;
             padding: 15px;
+            background-color: rgba(74, 111, 165, 0.1);
             border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            word-wrap: break-word;
         }
-        .settings-panel.active {
-            display: block;
-        }
-        .settings-group {
-            margin-bottom: 15px;
-        }
-        .settings-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .settings-group input[type="number"] {
-            width: 100px;
-        }
-        .roulette-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 0 auto;
-            display: none;
-        }
-        .roulette {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-        }
-        .roulette::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            background-color: #333;
-            border-radius: 50%;
-            z-index: 10;
-        }
-        .roulette-pointer {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 30px;
-            background-color: #e74c3c;
-            z-index: 5;
-        }
-        .roulette-section {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: bottom right;
+        
+        .nav {
             display: flex;
             justify-content: center;
-            align-items: center;
-            transition: transform 0.5s ease-out;
+            flex-wrap: wrap;
+            margin: 20px 0;
         }
-        .roulette-section span {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            transform: translate(50%, 50%);
-            font-weight: bold;
+        
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover {
+            color: var(--accent-color);
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+        
+        .nav a.active {
             color: white;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            background-color: var(--primary-color);
+        }
+        
+        .copyright {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        dt {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+        
+        dd {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                width: 100%;
+            }
+            
+            .nav a {
+                margin: 5px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>智能点名系统</h1>
+        <header>
+            <h1>✨ 随机数生成屋 ✨</h1>
+            <h2>探索数字的魔法世界</h2>
+        </header>
         
-        <div class="settings-toggle">
-            <button id="toggle-settings">高级设置</button>
+        <div class="instructions">
+            <h2>屋子内的魔法（使用说明）</h2>
+            <dl>
+                <dt>1: 按钮随机</dt>
+                <dd>- 点击按钮后生成一个0-9的随机整数</dd>
+                
+                <dt>2: 数值随机</dt>
+                <dd>- 设置一个数值n，生成n个0-100之间的不重复随机数</dd>
+                
+                <dt>3: 时间随机</dt>
+                <dd>- 设置时间间隔t(毫秒)，自动生成随机数</dd>
+                
+                <dt>4: 开心麻花</dt>
+                <dd>- 魔法屋的盲盒，随机生成有趣的内容</dd>
+            </dl>
         </div>
         
-        <div class="settings-panel" id="settings-panel">
-            <div class="settings-group">
-                <label for="sound-enabled">启用声音</label>
-                <input type="checkbox" id="sound-enabled" checked>
+        <div class="card-container">
+            <!-- 功能1: 按钮随机 -->
+            <div class="card">
+                <h3 class="card-title">按钮随机</h3>
+                <p>点击按钮生成0-9的随机数</p>
+                <button class="btn" onclick="generateRandom1()">生成随机数</button>
+                <div class="result" id="result1"></div>
             </div>
-            <div class="settings-group">
-                <label for="voice-type">语音类型</label>
-                <select id="voice-type">
-                   option < value="female">女性</option>
-                    <option value="male">男性</option>
-                </select>
+            
+            <!-- 功能2: 数值随机 -->
+            <div class="card">
+                <h3 class="card-title">数值随机</h3>
+                <p>输入要生成的随机数数量(1-100)</p>
+                <input type="number" id="countInput" min="1" max="100" value="5">
+                <button class="btn" onclick="generateRandom2()">生成</button>
+                <div class="result" id="result2"></div>
             </div>
-            <div class="settings-group">
-                <label for="volume">音量</label>
-                <input type="range" id="volume" min="0" max="100" value="50">
+            
+            <!-- 功能3: 时间随机 -->
+            <div class="card">
+                <h3 class="card-title">时间随机</h3>
+                <p>输入时间间隔(毫秒)</p>
+                <input type="number" id="intervalInput" min="100" max="10000" value="1000">
+                <button class="btn" id="timerBtn" onclick="toggleTimer()">开始</button>
+                <div class="result" id="result3"></div>
             </div>
-            <div class="settings-group">
-                <label for="speed">语音速度</label>
-                <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
-            </div>
-            <div class="settings-group">
-                <label for="animation-speed">动画速度</label>
-                <input type="range" id="animation-speed" min="1000" max="5000" value="2000">
-            </div>
-        </div>
-        
-        <div class="controls-group">
-            <button id="add-student">添加学生</button>
-            <button id="clear-all">清空名单</button>
-            <button id="export-list">导出名单</button>
-            <button id="import-list">导入名单</button>
-        </div>
-        
-        <div class="controls">
-            <button id="single-random" class="active">单人随机</button>
-            <button id="group-random">分组随机</button>
-            <button id="random-order">随机顺序</button>
-            <button id="roulette-mode">轮盘模式</button>
-        </div>
-        
-        <div class="controls-group">
-            <label for="student-name">学生姓名</label>
-            <input type="text" id="student-name" placeholder="输入学生姓名">
-            <button id="add-btn">添加</button>
-        </div>
-        
-        <div class="students-container">
-            <div class="student-list" id="student-list">
-                <!-- 学生列表将通过JavaScript动态生成 -->
-            </div>
-        </div>
-        
-        <div class="result-container" id="result-container">
-            <div>
-                <span class="result-name" id="result-name">未点名</span>
-                <span class="result-score" id="result-score">(0分)</span>
+            
+            <!-- 功能4: 开心麻花 -->
+            <div class="card">
+                <h3 class="card-title">开心麻花</h3>
+                <p>点击按钮获取随机惊喜</p>
+                <button class="btn btn-accent" onclick="generateRandom4()">打开盲盒</button>
+                <div class="result" id="result4"></div>
             </div>
         </div>
         
-        <div class="roulette-container" id="roulette-container">
-            <div class="roulette-pointer"></div>
-            <div class="roulette" id="roulette"></div>
+        <div class="nav">
+            <a href="#" class="active">首页</a>
+            <a href="#function1">按钮随机</a>
+            <a href="#function2">数值随机</a>
+            <a href="#function3">时间随机</a>
+            <a href="#function4">开心麻花</a>
+        </div>
+        
+        <div class="copyright">
+            <p>Copyright © Morley | 随机数生成屋</p>
         </div>
     </div>
-
+    
     <script>
-        // 存储学生列表
-        let students = [];
-        let currentMode = 'single-random';
-        let selectedStudent = null;
-        let soundEnabled = true;
-        let voiceType = 'female';
-        let volume = 50;
-        let speed = 1;
-        let animationSpeed = 2000;
-        let currentAnimation = null;
-        let textToSpeech = window.speechSynthesis;
-        let voices = [];
-        
-        // 音频元素
-        const clickSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3');
-        const selectSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-game-notification-chime-1954.mp3');
-        const winSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
-        
-        // 从本地存储加载学生列表
-        document.addEventListener('DOMContentLoaded', function() {
-            loadStudents();
-            initSpeechSynthesis();
-            
-            // 事件监听器
-            document.getElementById('add-btn').addEventListener('click', addStudent);
-            document.getElementById('student-name').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addStudent();
-                }
-            });
-            
-            document.getElementById('single-random').addEventListener('click', function() {
-                setMode('single-random');
-                singleRandom();
-            });
-            
-            document.getElementById('group-random').addEventListener('click', function() {
-                setMode('group-random');
-                groupRandom();
-            });
-            
-            document.getElementById('random-order').addEventListener('click', function() {
-                setMode('random-order');
-                randomOrder();
-            });
-            
-            document.getElementById('roulette-mode').addEventListener('click', function() {
-                setMode('roulette-mode');
-                showRoulette();
-            });
-            
-            document.getElementById('add-student').addEventListener('click', function() {
-                document.getElementById('student-name').focus();
-            });
-            
-            document.getElementById('clear-all').addEventListener('click', clearAll);
-            document.getElementById('export-list').addEventListener('click', exportList);
-            document.getElementById('import-list').addEventListener('click', importList);
-            document.getElementById('toggle-settings').addEventListener('click', toggleSettings);
-            
-            document.getElementById('sound-enabled').addEventListener('change', function() {
-                soundEnabled = this.checked;
-            });
-            
-            document.getElementById('voice-type').addEventListener('change', function() {
-                voiceType = this.value;
-                initSpeechSynthesis();
-            });
-            
-            document.getElementById('volume').addEventListener('input', function() {
-                volume = this.value;
-            });
-            
-            document.getElementById('speed').addEventListener('input', function() {
-                speed = parseFloat(this.value);
-            });
-            
-            document.getElementById('animation-speed').addEventListener('input', function() {
-                animationSpeed = parseInt(this.value);
-            });
-        });
-        
-        // 初始化语音合成
-        function initSpeechSynthesis() {
-            if (window.speechSynthesis) {
-                voices = window.speechSynthesis.getVoices();
-                // 找到合适的语音
-                let selectedVoice = null;
-                
-                if (voiceType === 'female') {
-                    selectedVoice = voices.find(v => v.name.includes('Female') || v.name.includes('女'));
-                } else {
-                    selectedVoice = voices.find(v => v.name.includes('Male') || v.name.includes('男'));
-                }
-                
-                if (!selectedVoice) {
-                    selectedVoice = voices[0];
-                }
-                speechSynthesis.voice = selectedVoice;
-            }
+        // 功能1: 按钮随机
+        function generateRandom1() {
+            const randomNum = Math.floor(Math.random() * 10);
+            document.getElementById('result1').innerHTML = 
+                `🎲 随机数是: <span style="font-size: 1.5em; color: var(--accent-color);">${randomNum}</span>`;
         }
         
-        // 设置当前模式
-        function setMode(mode) {
-            // 移除所有按钮的active类
-            document.querySelectorAll('.controls button').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        // 功能2: 数值随机
+        function generateRandom2() {
+            const count = parseInt(document.getElementById('countInput').value);
             
-            // 给当前模式按钮添加active类
-            document.getElementById(mode).classList.add('active');
-            
-            // 隐藏结果显示和其他动画
-            document.getElementById('result-container').style.display = 'flex';
-            document.getElementById('roulette-container').style.display = 'none';
-            
-            // 切换到轮盘模式时显示轮盘
-            if (mode === 'roulette-mode') {
-                document.getElementById('result-container').style.display = 'none';
-                document.getElementById('roulette-container').style.display = 'block';
-            }
-            
-            currentMode = mode;
-        }
-        
-        // 加载学生列表从本地存储
-        function loadStudents() {
-            const savedStudents = localStorage.getItem('point_students');
-            if (savedStudents) {
-                students = JSON.parse(savedStudents);
-                renderStudents();
-            }
-        }
-        
-        // 保存学生列表到本地存储
-        function saveStudents() {
-            localStorage.setItem('point_students', JSON.stringify(students));
-            renderStudents();
-        }
-        
-        // 渲染学生列表
-        function renderStudents() {
-            const studentList = document.getElementById('student-list');
-            studentList.innerHTML = '';
-            
-            students.forEach((student, index) => {
-                const studentElement = document.createElement('div');
-                studentElement.className = `student ${selectedStudent === index ? 'selected-student' : ''}`;
-                studentElement.innerHTML = `
-                    <span>${student.name}</span>
-                    <span class="student-score">(${student.score})</span>
-                `;
-                studentElement.addEventListener('click', () => selectStudent(index));
-                studentElement.addEventListener('dblclick', () => addScore(index));
-                
-                studentList.appendChild(studentElement);
-            });
-        }
-        
-        // 添加学生
-        function addStudent() {
-            const nameInput = document.getElementById('student-name');
-            const name = nameInput.value.trim();
-            
-            if (name && !students.some(student => student.name === name)) {
-                students.push({
-                    name: name,
-                    score: 0
-                });
-                
-                saveStudents();
-                nameInput.value = '';
-                
-                if (soundEnabled) {
-                    clickSound.play();
-                }
-            }
-        }
-        
-        // 选择学生
-        function selectStudent(index) {
-            selectedStudent = index;
-            renderStudents();
-            
-            if (soundEnabled) {
-                selectSound.play();
-            }
-        }
-        
-        // 增加分数
-        function addScore(index) {
-            if (students[index]) {
-                students[index].score += 10;
-                saveStudents();
-                
-                if (soundEnabled) {
-                    winSound.play();
-                }
-            }
-        }
-        
-        // 单人随机
-        function singleRandom() {
-            if (students.length === 0) return;
-            
-            const randomIndex = Math.floor(Math.random() * students.length);
-            selectedStudent = randomIndex;
-            
-            if (soundEnabled) {
-                selectSound.play();
-                speakStudent(randomIndex);
-            }
-            
-            renderStudents();
-            showResult(randomIndex);
-        }
-        
-        // 分组随机（随机多少个学生一起被选中）
-        function groupRandom() {
-            if (students.length === 0) return;
-            
-            let groupSize = Math.floor(students.length * (Math.random() * 0.3 + 0.1));
-            groupSize = Math.max(2, Math.min(students.length, groupSize));
-            
-            const shuffled = [...students].sort(() => 0.5 - Math.random());
-            const selectedIndices = new Set();
-            
-            while (selectedIndices.size < groupSize) {
-                const randomIndex = Math.floor(Math.random() * students.length);
-                selectedIndices.add(randomIndex);
-            }
-            
-            const selectedIndicesArray = Array.from(selectedIndices);
-            selectedStudent = selectedIndicesArray[0];
-            
-            if (soundEnabled) {
-                selectSound.play();
-                speakStudent(selectedIndicesArray[0]);
-            }
-            
-            renderStudents();
-            
-            let result = '';
-            selectedIndicesArray.forEach(index => {
-                result += `<span class="result-name">${students[index].name}</span><span class="result-score">(${students[index].score})</span><br>`;
-            });
-            
-            document.getElementById('result-name').innerHTML = result.slice(0, -4); // 去掉最后一个换行符
-            document.getElementById('result-container').style.display = 'flex';
-        }
-        
-        // 随机顺序
-        function randomOrder() {
-            if (students.length === 0) return;
-            
-            const shuffled = [...students].sort(() => 0.5 - Math.random());
-            const result = document.getElementById('result-container');
-            
-            result.innerHTML = '';
-            
-            shuffled.forEach((student, index) => {
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'result-name';
-                nameSpan.textContent = student.name;
-                
-                const scoreSpan = document.createElement('span');
-                scoreSpan.className = 'result-score';
-                scoreSpan.textContent = `(${student.score})`;
-                
-                const br = document.createElement('br');
-                
-                result.appendChild(nameSpan);
-                result.appendChild(scoreSpan);
-                result.appendChild(br);
-                
-                if (soundEnabled && index === 0) {
-                    selectSound.play();
-                    speakStudent(students.findIndex(s => s.name === student.name));
-                }
-            });
-            
-            result.style.display = 'block';
-        }
-        
-        // 轮盘模式
-        function showRoulette() {
-            if (students.length === 0) return;
-            
-            const rouletteElement = document.getElementById('roulette');
-            const container = document.getElementById('roulette-container');
-            
-            // 清空之前的轮盘
-            while (rouletteElement.firstChild) {
-                rouletteElement.removeChild(rouletteElement.firstChild);
-            }
-            
-            // 创建轮盘扇区
-            const radiansPerStudent = 2 * Math.PI / students.length;
-            
-            students.forEach((student, index) => {
-                const angle = radiansPerStudent * index;
-                const section = document.createElement('div');
-                section.className = 'roulette-section';
-                section.style.transform = `rotate(${angle}rad)`;
-                
-                // 计算随机颜色
-                const hue = (index / students.length) * 360;
-                section.style.background = `hsl(${hue}, 70%, 60%)`;
-                
-                const span = document.createElement('span');
-                span.textContent = student.name;
-                section.appendChild(span);
-                
-                rouletteElement.appendChild(section);
-            });
-            
-            // 旋转轮盘
-            rotateRoulette();
-        }
-        
-        function rotateRoulette() {
-            if (currentAnimation) {
-                cancelAnimationFrame(currentAnimation);
-            }
-            
-            const sections = document.querySelectorAll('.roulette-section');
-            const totalSections = sections.length;
-            const baseSpeed = 100; // 基础速度（度/秒）
-            
-            let startAngle = 0;
-            let rotationSpeed = baseSpeed + Math.random() * 500; // 随机速度
-            let rotationCount = 0;
-            
-            const startTime = Date.now();
-            const targetRotation = rotationSpeed * Math.random() * 10 + 5000; // 随机旋转时间
-            
-            function animate() {
-                const elapsed = Date.now() - startTime;
-                
-                if (elapsed < targetRotation) {
-                    startAngle += rotationSpeed / 1000;
-                    rotationCount += rotationSpeed / 1000 / 360;
-                    
-                    // 速度逐渐减慢
-                    rotationSpeed -= 0.5;
-                    if (rotationSpeed < 50) {
-                        rotationSpeed = 50;
-                    }
-                    
-                    // 旋转轮盘
-                    sections.forEach((section, index) => {
-                        const angle = startAngle + (index / totalSections) * 360;
-                        section.style.transform = `rotate(${angle}deg)`;
-                    });
-                    
-                    currentAnimation = requestAnimationFrame(animate);
-                } else {
-                    // 选择结果
-                    const finalRotation = startAngle + (rotationSpeed / 1000);
-                    const pointedAngle = (finalRotation % 360) - 180; // 减去180度，因为指针在顶部
-                    
-                    // 找到被选中的扇区
-                    let selectedSection = Math.floor((180 - pointedAngle) / (360 / totalSections));
-                    selectedSection = (selectedSection + totalSections) % totalSections;
-                    
-                    selectedStudent = selectedSection;
-                    renderStudents();
-                    
-                    if (soundEnabled) {
-                        selectSound.play();
-                        speakStudent(selectedSection);
-                    }
-                    
-                    showResult(selectedSection);
-                }
-            }
-            
-            currentAnimation = requestAnimationFrame(animate);
-        }
-        
-        // 显示结果
-        function showResult(index) {
-            const student = students[index];
-            document.getElementById('result-name').textContent = student.name;
-            document.getElementById('result-score').textContent = `(${student.score}分)`;
-            
-            if (soundEnabled) {
-                speakStudent(index);
-            }
-        }
-        
-        // 说话功能
-        function speakStudent(index) {
-            if (!window.speechSynthesis || !soundEnabled) return;
-            
-            const utterance = new SpeechSynthesisUtterance(students[index].name);
-            utterance.lang = 'zh-CN';
-            utterance.volume = volume / 100;
-            utterance.rate = speed;
-            
-            if (voiceType === 'female') {
-                const femaleVoices = voices.filter(voice => voice.name.includes('Female') || voice.name.includes('女'));
-                if (femaleVoices.length > 0) {
-                    utterance.voice = femaleVoices[0];
-                }
-            } else {
-                const maleVoices = voices.filter(voice => voice.name.includes('Male') || voice.name.includes('男'));
-                if (maleVoices.length > 0) {
-                    utterance.voice = maleVoices[0];
-                }
-            }
-            
-            window.speechSynthesis.speak(utterance);
-        }
-        
-        // 清空所有学生
-        function clearAll() {
-            if (confirm('确定要清空所有学生吗？')) {
-                students = [];
-                selectedStudent = null;
-                saveStudents();
-                
-                if (soundEnabled) {
-                    clickSound.play();
-                }
-            }
-        }
-        
-        // 导出名单
-        function exportList() {
-            if (students.length === 0) {
-                alert('没有学生可以导出');
+            if (isNaN(count) || count < 1 || count > 100) {
+                document.getElementById('result2').innerHTML = 
+                    '⚠️ 请输入1-100之间的整数';
                 return;
             }
             
-            const data = JSON.stringify(students, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '点名名单.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const numbers = [];
+            while (numbers.length < count) {
+                const num = Math.floor(Math.random() * 101);
+                if (!numbers.includes(num)) {
+                    numbers.push(num);
+                }
+            }
             
-            if (soundEnabled) {
-                clickSound.play();
+            document.getElementById('result2').innerHTML = 
+                `🔢 生成的 ${count} 个随机数: <br>${numbers.join(', ')}`;
+        }
+        
+        // 功能3: 时间随机
+        let timer = null;
+        let isTimerRunning = false;
+        
+        function toggleTimer() {
+            const btn = document.getElementById('timerBtn');
+            
+            if (isTimerRunning) {
+                clearInterval(timer);
+                btn.textContent = '开始';
+                btn.style.backgroundColor = 'var(--primary-color)';
+                isTimerRunning = false;
+            } else {
+                const interval = parseInt(document.getElementById('intervalInput').value);
+                
+                if (isNaN(interval) {
+                    document.getElementById('result3').innerHTML = '⚠️ 请输入有效的时间间隔';
+                    return;
+                }
+                
+                btn.textContent = '停止';
+                btn.style.backgroundColor = 'var(--secondary-color)';
+                
+                // 立即生成第一个随机数
+                generateRandom3();
+                
+                // 设置定时器
+                timer = setInterval(generateRandom3, interval);
+                isTimerRunning = true;
             }
         }
         
-        // 导入名单
-        function importList() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    try {
-                        const data = JSON.parse(ev.target.result);
-                        if (Array.isArray(data) && data.length > 0 && data[0].name !== undefined) {
-                            students = JSON.parse(ev.target.result);
-                            saveStudents();
-                            
-                            if (soundEnabled) {
-                                clickSound.play();
-                            }
-                        } else {
-                            alert('导入的文件格式不正确');
-                        }
-                    } catch (e) {
-                        alert('导入失败，请确保是有效的JSON文件');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
+        function generateRandom3() {
+            const randomNum = Math.floor(Math.random() * 101);
+            document.getElementById('result3').innerHTML = 
+                `⏱️ 随机数是: <span style="font-size: 1.5em; color: var(--accent-color);">${randomNum}</span>`;
         }
         
-        // 切换设置面板
-        function toggleSettings() {
-            const settingsPanel = document.getElementById('settings-panel');
-            settingsPanel.classList.toggle('active');
+        // 功能4: 开心麻花
+        const surprises = [
+            "🎁 恭喜获得神秘礼物一份！",
+            "🌈 你今天会遇见彩虹般的好运！",
+            "🍀 幸运四叶草与你同在！",
+            "🌟 星星为你指引方向！",
+            "🎯 你的目标即将实现！",
+            "💡 灵感即将降临！",
+            "☕ 休息一下，喝杯咖啡吧！",
+            "📚 今天适合学习新知识！",
+            "🎵 让音乐陪伴你的时光！",
+            "🌻 像向日葵一样向阳生长！"
+        ];
+        
+        function generateRandom4() {
+            const randomIndex = Math.floor(Math.random() * surprises.length);
+            const randomSurprise = surprises[randomIndex];
+            
+            // 添加一些动画效果
+            const resultElement = document.getElementById('result4');
+            resultElement.style.transition = 'all 0.3s';
+            resultElement.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                resultElement.innerHTML = 
+                    `✨ ${randomSurprise}`;
+                resultElement.style.transform = 'scale(1)';
+            }, 300);
         }
     </script>
 </body>
