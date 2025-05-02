@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <style>
         :root {
-            --primary: #6a11cb;
-            --secondary: #2575fc;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --success: #28a745;
-            --danger: #dc3545;
+            --primary: #2E7D32;
+            --secondary: #4CAF50;
+            --dark: #1B5E20;
+            --light: #E8F5E9;
+            --success: #388E3C;
+            --danger: #D32F2F;
+            --highlight: #C8E6C9;
         }
         
         * {
@@ -20,41 +21,54 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-family: 'Roboto', 'Noto Sans JP', sans-serif;
+            background: var(--dark);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--light);
+            color: white;
         }
         
         .login-container, .main-container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             width: 90%;
             max-width: 500px;
             text-align: center;
             transition: all 0.5s ease;
+            border: 2px solid var(--primary);
         }
         
         .login-container {
             display: block;
+            animation: bgAnimation 15s infinite alternate;
+            background-size: 300% 300%;
+            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+        }
+        
+        @keyframes bgAnimation {
+            0% { background: linear-gradient(135deg, #FF9A9E, #FAD0C4); }
+            25% { background: linear-gradient(135deg, #FAD0C4, #FBC2EB); }
+            50% { background: linear-gradient(135deg, #FBC2EB, #A6C1EE); }
+            75% { background: linear-gradient(135deg, #A6C1EE, #84FAB0); }
+            100% { background: linear-gradient(135deg, #84FAB0, #FF9A9E); }
         }
         
         .main-container {
             display: none;
+            background: var(--dark);
         }
         
         h1 {
             margin-bottom: 1.5rem;
-            font-size: 2rem;
-            background: linear-gradient(to right, #fff, #c9d6ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .input-group {
@@ -66,21 +80,22 @@
             width: 100%;
             padding: 12px 15px;
             border: none;
-            border-radius: 50px;
+            border-radius: 5px;
             font-size: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--light);
+            background: rgba(255, 255, 255, 0.9);
+            color: black;
             outline: none;
             transition: all 0.3s ease;
+            font-weight: bold;
         }
         
         input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(0, 0, 0, 0.5);
         }
         
         input:focus, select:focus {
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+            background: white;
+            box-shadow: 0 0 0 2px var(--primary);
         }
         
         button {
@@ -89,6 +104,8 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
         
         button:hover {
@@ -100,14 +117,41 @@
             transform: translateY(0);
         }
         
-        .random-number {
-            font-size: 3.5rem;
-            font-weight: bold;
+        .digital-display {
+            background: black;
+            border: 5px solid #333;
+            border-radius: 10px;
+            padding: 15px;
             margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .digital-number {
+            font-family: 'Digital', 'Courier New', monospace;
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
             letter-spacing: 5px;
-            background: linear-gradient(to right, #fff, #c9d6ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            height: 70px;
+        }
+        
+        .digit-column {
+            position: relative;
+            width: 50px;
+            height: 70px;
+            overflow: hidden;
+            margin: 0 2px;
+        }
+        
+        .digit-scroll {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
         
         .time-info {
@@ -115,12 +159,12 @@
             justify-content: space-between;
             margin-bottom: 1.5rem;
             font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
         }
         
         .time-box {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 10px;
             flex: 1;
             margin: 0 5px;
         }
@@ -140,22 +184,43 @@
         
         @keyframes glow {
             from {
-                box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+                box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
             }
             to {
-                box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
             }
         }
         
         .error-message {
-            color: var(--danger);
+            color: white;
             margin-top: 10px;
             font-size: 0.9rem;
             height: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
         
         .timezone-select {
             margin-bottom: 1rem;
+        }
+        
+        /* 时区选择器自定义样式 */
+        select option {
+            color: black !important;
+            background: white !important;
+            font-weight: bold !important;
+        }
+        
+        select option:checked {
+            color: white !important;
+            background: var(--success) !important;
+            font-weight: bold !important;
+        }
+        
+        /* 数字字体 */
+        @font-face {
+            font-family: 'Digital';
+            src: url('https://cdn.jsdelivr.net/gh/andybrewer/mvp/fonts/Digital.woff2') format('woff2');
         }
     </style>
 </head>
@@ -184,7 +249,16 @@
             </select>
         </div>
         
-        <div class="random-number" id="randomNumber">------</div>
+        <div class="digital-display">
+            <div class="digital-number" id="randomNumber">
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+                <div class="digit-column"><div class="digit-scroll">-</div></div>
+            </div>
+        </div>
         
         <div class="time-info">
             <div class="time-box">
@@ -245,7 +319,8 @@
             const copyBtn = document.getElementById('copyBtn');
             
             let timezoneOffset = 8; // 默认北京时间 UTC+8
-            
+            let currentNumber = "------";
+
             // 时区选择
             timezoneSelect.addEventListener('change', () => {
                 timezoneOffset = parseInt(timezoneSelect.value);
@@ -264,7 +339,7 @@
             
             // 复制按钮
             copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(randomNumber.textContent)
+                navigator.clipboard.writeText(currentNumber)
                     .then(() => {
                         copyBtn.textContent = "已复制!";
                         setTimeout(() => {
@@ -310,6 +385,31 @@
                 }
             }
             
+            // 机场大屏数字滚动效果
+            async function updateDigitalDisplay(newNumber) {
+                const newStr = newNumber.toString();
+                currentNumber = newStr;
+                
+                const digitColumns = randomNumber.querySelectorAll('.digit-column');
+                
+                for (let i = 0; i < 6; i++) {
+                    const currentDigit = digitColumns[i].querySelector('.digit-scroll').textContent;
+                    const newDigit = newStr[i];
+                    
+                    if (currentDigit !== newDigit) {
+                        // 创建滚动效果
+                        const scrollElement = digitColumns[i].querySelector('.digit-scroll');
+                        scrollElement.style.transform = `translateY(${currentDigit === '-' ? '0' : '-70px'})`;
+                        
+                        // 短暂延迟后更新数字并复位
+                        setTimeout(() => {
+                            scrollElement.textContent = newDigit;
+                            scrollElement.style.transform = 'translateY(0)';
+                        }, 50);
+                    }
+                }
+            }
+            
             // 更新时间显示
             function updateTimeDisplay() {
                 const now = new Date();
@@ -333,7 +433,7 @@
             // 更新随机数
             async function updateRandomNumber() {
                 const num = await generateSecureRandom();
-                randomNumber.textContent = num.toString();
+                updateDigitalDisplay(num);
             }
             
             // 更新所有显示
