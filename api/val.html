@@ -6,10 +6,10 @@
 </head>
 <body>
 <script>
-const params = new URLSearchParams(window.location.search);
-const tz = params.get('tz') || 'UTC+8';
+/* ✅ 严格按分钟生成 VAL */
+const tz = new URLSearchParams(location.search).get('tz') || 'UTC+8';
 
-const offset = {
+const offsetMap = {
     'UTC+0': 0,
     'UTC+8': 8 * 60,
     'UTC-5': -5 * 60,
@@ -19,18 +19,17 @@ const offset = {
 
 const now = new Date();
 const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-const local = new Date(utc + (offset[tz] || 0) * 60000);
+const local = new Date(utc + (offsetMap[tz] || 0) * 60000);
 
-const minutes = local.getHours() * 60 + local.getMinutes();
-const seconds = local.getSeconds();
-
-const val = ('000000' + ((minutes + seconds) % 1000000)).slice(-6);
+/* ✅ 关键：只使用分钟 */
+const minuteSeed = Math.floor(local.getTime() / 60000);
+const val = ('000000' + (minuteSeed % 1000000)).slice(-6);
 
 const data = {
     val: val,
     tz: tz,
     server_time: local.toLocaleTimeString('en-US', { hour12: false }),
-    expire_in: 60 - seconds
+    expire_in: 60 - local.getSeconds()
 };
 
 document.body.innerText = JSON.stringify(data);
