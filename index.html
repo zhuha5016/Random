@@ -14,13 +14,13 @@
             --highlight: #C8E6C9;
             --orange: #FF9800;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Roboto', 'Noto Sans JP', sans-serif;
             background: var(--dark);
@@ -30,7 +30,7 @@
             align-items: center;
             color: white;
         }
-        
+
         .login-container, .main-container {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
@@ -42,14 +42,14 @@
             transition: all 0.5s ease;
             border: 2px solid var(--primary);
         }
-        
+
         .login-container {
             display: block;
             animation: bgAnimation 15s infinite alternate;
             background-size: 300% 300%;
             background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
         }
-        
+
         @keyframes bgAnimation {
             0% { background: linear-gradient(135deg, #FF9A9E, #FAD0C4); }
             25% { background: linear-gradient(135deg, #FAD0C4, #FBC2EB); }
@@ -57,12 +57,12 @@
             75% { background: linear-gradient(135deg, #A6C1EE, #84FAB0); }
             100% { background: linear-gradient(135deg, #84FAB0, #FF9A9E); }
         }
-        
+
         .main-container {
             display: none;
             background: var(--dark);
         }
-        
+
         h1 {
             margin-bottom: 1.5rem;
             font-size: 1.8rem;
@@ -71,13 +71,13 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        
+
         .input-group {
             margin-bottom: 1.5rem;
             position: relative;
             display: flex;
         }
-        
+
         .password-input {
             flex: 1;
             padding: 12px 15px;
@@ -90,7 +90,7 @@
             transition: all 0.3s ease;
             font-weight: bold;
         }
-        
+
         .file-input-btn {
             padding: 12px 15px;
             border: none;
@@ -104,22 +104,22 @@
             cursor: pointer;
             height: 42px;
         }
-        
+
         .file-input-btn:hover {
             background: #455A64;
         }
-        
+
         .file-input {
             display: none;
         }
-        
+
         .btn-container {
             display: flex;
             width: 100%;
             gap: 10px;
             transition: all 0.5s ease;
         }
-        
+
         .login-btn {
             flex: 1;
             padding: 12px 15px;
@@ -135,7 +135,7 @@
             transition: all 0.5s ease;
             height: 42px;
         }
-        
+
         .save-btn {
             flex: 1;
             padding: 12px 15px;
@@ -152,16 +152,16 @@
             height: 42px;
             display: none;
         }
-        
+
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         button:active {
             transform: translateY(0);
         }
-        
+
         .digital-display {
             background: black;
             border: 5px solid #333;
@@ -171,7 +171,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .digital-number {
             font-family: 'Digital', 'Courier New', monospace;
             font-size: 4rem;
@@ -183,7 +183,7 @@
             justify-content: center;
             height: 70px;
         }
-        
+
         .digit-column {
             position: relative;
             width: 50px;
@@ -191,14 +191,14 @@
             overflow: hidden;
             margin: 0 2px;
         }
-        
+
         .digit-scroll {
             position: absolute;
             width: 100%;
             text-align: center;
             transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        
+
         .time-info {
             display: flex;
             justify-content: space-between;
@@ -208,17 +208,17 @@
             padding: 10px;
             border-radius: 5px;
         }
-        
+
         .time-box {
             flex: 1;
             margin: 0 5px;
         }
-        
+
         .controls {
             display: flex;
             gap: 10px;
         }
-        
+
         .controls button {
             flex: 1;
             background: var(--primary);
@@ -230,30 +230,26 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
+
         .controls button:hover {
             background: var(--secondary);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         .controls button:active {
             transform: translateY(0);
         }
-        
+
         .glow {
             animation: glow 1.5s ease-in-out infinite alternate;
         }
-        
+
         @keyframes glow {
-            from {
-                box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-            }
-            to {
-                box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
-            }
+            from { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+            to { box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
         }
-        
+
         .error-message {
             color: white;
             margin-top: 10px;
@@ -262,7 +258,7 @@
             font-weight: bold;
             text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
-        
+
         .success-message {
             color: #4CAF50;
             margin-top: 10px;
@@ -271,11 +267,11 @@
             font-weight: bold;
             text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
-        
+
         .timezone-select {
             margin-bottom: 1rem;
         }
-        
+
         .timezone-select select {
             width: 100%;
             padding: 12px 15px;
@@ -287,19 +283,19 @@
             outline: none;
             font-weight: bold;
         }
-        
+
         select option {
             color: black !important;
             background: white !important;
             font-weight: bold !important;
         }
-        
+
         select option:checked {
             color: white !important;
             background: var(--success) !important;
             font-weight: bold !important;
         }
-        
+
         @font-face {
             font-family: 'Digital';
             src: url('https://cdn.jsdelivr.net/gh/andybrewer/mvp/fonts/Digital.woff2') format('woff2');
@@ -322,11 +318,11 @@
         <div class="error-message" id="loginError"></div>
         <div class="success-message" id="loginSuccess"></div>
     </div>
-    
+
     <!-- 主界面 -->
     <div class="main-container" id="mainContainer">
         <h1>时空同步安全随机数</h1>
-        
+
         <div class="timezone-select">
             <select id="timezoneSelect">
                 <option value="0">UTC+0 伦敦</option>
@@ -336,7 +332,7 @@
                 <option value="1">UTC+1 巴黎</option>
             </select>
         </div>
-        
+
         <div class="digital-display">
             <div class="digital-number" id="randomNumber">
                 <div class="digit-column"><div class="digit-scroll">-</div></div>
@@ -347,7 +343,7 @@
                 <div class="digit-column"><div class="digit-scroll">-</div></div>
             </div>
         </div>
-        
+
         <div class="time-info">
             <div class="time-box">
                 <div>服务器时间</div>
@@ -362,7 +358,7 @@
                 <div id="userTimezone">UTC+8</div>
             </div>
         </div>
-        
+
         <div class="controls">
             <button id="syncBtn" class="glow">同步时间</button>
             <button id="copyBtn">复制号码</button>
@@ -382,21 +378,21 @@
         const loginSuccess = document.getElementById('loginSuccess');
         const fileInputBtn = document.getElementById('fileInputBtn');
         const fileInput = document.getElementById('fileInput');
-        
+
         // 显示保存按钮
         function showSaveButton() {
             saveBtn.style.display = 'block';
             loginSuccess.textContent = "密码正确，请保存验证文件或再次点击进入系统";
             loginError.textContent = "";
         }
-        
+
         // 进入系统
         function enterSystem() {
             loginContainer.style.display = 'none';
             mainContainer.style.display = 'block';
             initApp();
         }
-        
+
         // 登录按钮点击事件
         loginBtn.addEventListener('click', () => {
             if (passwordInput.value === PASSWORD) {
@@ -411,7 +407,7 @@
                 passwordInput.focus();
             }
         });
-        
+
         // 保存验证文件按钮点击事件
         saveBtn.addEventListener('click', async () => {
             if (passwordInput.value === PASSWORD) {
@@ -424,19 +420,19 @@
                 }
             }
         });
-        
+
         // 回车键提交
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 loginBtn.click();
             }
         });
-        
+
         // 文件选择按钮点击事件
         fileInputBtn.addEventListener('click', () => {
             fileInput.click();
         });
-        
+
         // 文件选择处理
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
@@ -456,7 +452,7 @@
                 loginError.textContent = "请选择有效的.txt文件";
             }
         });
-        
+
         // 读取文件为文本
         function readFileAsText(file) {
             return new Promise((resolve, reject) => {
@@ -466,65 +462,56 @@
                 reader.readAsText(file);
             });
         }
-        
+
         // 支持的加密算法列表
         const ENCRYPTION_ALGORITHMS = [
             { name: 'SHA-256', secure: true },
             { name: 'SHA-384', secure: true },
             { name: 'SHA-512', secure: true },
-            { name: 'SHA-1', secure: false }, // 不安全的算法，仅用于混淆
-            { name: 'MD5', secure: false }     // 不安全的算法，仅用于混淆
+            { name: 'SHA-1', secure: false },
+            { name: 'MD5', secure: false }
         ];
-        
+
         // 保存验证文件
         async function saveAuthFile() {
             try {
                 const encoder = new TextEncoder();
                 const passwordData = encoder.encode(PASSWORD);
-                
-                // 使用支持的算法进行加密
+
                 const encryptionPromises = ENCRYPTION_ALGORITHMS.map(alg => {
                     return crypto.subtle.digest(alg.name, passwordData)
                         .then(buf => ({ alg: alg.name, data: buf }))
                         .catch(err => {
-                            console.warn(`算法 ${alg.name} 不支持，使用替代方案`);
-                            // 如果不支持该算法，使用SHA-256加盐替代
                             const salt = encoder.encode(alg.name + PASSWORD);
                             return crypto.subtle.digest('SHA-256', salt)
                                 .then(buf => ({ alg: alg.name, data: buf }));
                         });
                 });
-                
-                // 添加额外的混淆数据
+
                 const extraHashes = [
                     crypto.subtle.digest('SHA-256', encoder.encode(PASSWORD + 'SALT1')),
                     crypto.subtle.digest('SHA-512', encoder.encode('PRE' + PASSWORD + 'POST')),
                     crypto.subtle.digest('SHA-384', encoder.encode(PASSWORD.split('').reverse().join('')))
                 ];
-                
-                // 等待所有加密完成
+
                 const results = await Promise.all([
                     ...encryptionPromises,
                     ...extraHashes.map(p => p.then(buf => ({ alg: 'EXTRA', data: buf })))
                 ]);
-                
-                // 转换为十六进制字符串
+
                 const hexStrings = results.map(result => {
                     return `${result.alg}:${arrayBufferToHexString(result.data)}`;
                 });
-                
-                // 创建文件内容
+
                 let fileContent = `=== AUTH FILE DO NOT MODIFY ===\n`;
                 fileContent += `VERSION:1.0\n`;
                 fileContent += `TIMESTAMP:${Date.now()}\n`;
                 fileContent += hexStrings.join('\n') + '\n';
-                
-                // 添加随机混淆数据
+
                 for (let i = 0; i < 10; i++) {
                     fileContent += `RND_${i}:${Math.random().toString(36).substring(2)}\n`;
                 }
-                
-                // 创建Blob对象并下载
+
                 const blob = new Blob([fileContent], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -532,63 +519,56 @@
                 a.download = 'auth.txt';
                 document.body.appendChild(a);
                 a.click();
-                
-                // 清理
+
                 setTimeout(() => {
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                 }, 100);
-                
+
             } catch (error) {
                 console.error('保存验证文件错误:', error);
                 throw new Error('无法生成验证文件');
             }
         }
-        
-        // ArrayBuffer转十六进制字符串
+
         function arrayBufferToHexString(buffer) {
             return Array.from(new Uint8Array(buffer))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
         }
-        
+
         // 验证授权文件
         async function validateAuthFile(content) {
             try {
-                // 检查文件基本结构
                 if (!content.includes('=== AUTH FILE DO NOT MODIFY ===')) {
                     return false;
                 }
-                
-                // 提取所有加密数据
+
                 const lines = content.split('\n').filter(line => line.trim() !== '');
-                const dataLines = lines.filter(line => line.includes(':') && 
-                    !line.startsWith('===') && 
-                    !line.startsWith('VERSION') && 
-                    !line.startsWith('TIMESTAMP') && 
+                const dataLines = lines.filter(line => line.includes(':') &&
+                    !line.startsWith('===') &&
+                    !line.startsWith('VERSION') &&
+                    !line.startsWith('TIMESTAMP') &&
                     !line.startsWith('RND_'));
-                
-                // 对当前密码进行加密处理
+
                 const encoder = new TextEncoder();
                 const passwordData = encoder.encode(PASSWORD);
-                
-                // 检查至少两个加密数据是否匹配
+
                 let matchCount = 0;
-                
+
                 for (const line of dataLines) {
                     if (matchCount >= 2) break;
-                    
+
                     const [alg, hexValue] = line.split(':');
-                    
+
                     try {
-                        // 检查是否是支持的算法
                         const supportedAlg = ENCRYPTION_ALGORITHMS.find(a => a.name === alg);
-                        const algorithm = supportedAlg ? alg : 'SHA-256'; // 不支持的算法使用SHA-256替代
-                        
-                        const hash = await crypto.subtle.digest(algorithm, 
+                        const algorithm = supportedAlg ? alg : 'SHA-256';
+
+                        const hash = await crypto.subtle.digest(algorithm,
                             supportedAlg ? passwordData : encoder.encode(alg + PASSWORD));
                         const currentHex = arrayBufferToHexString(hash);
-                        
+
                         if (hexValue === currentHex) {
                             matchCount++;
                         }
@@ -596,15 +576,15 @@
                         console.warn(`验证算法 ${alg} 失败:`, err);
                     }
                 }
-                
+
                 return matchCount >= 2;
-                
+
             } catch (error) {
                 console.error('验证文件错误:', error);
                 return false;
             }
         }
-        
+
         // 主应用逻辑
         function initApp() {
             const timezoneSelect = document.getElementById('timezoneSelect');
@@ -614,26 +594,31 @@
             const userTimezone = document.getElementById('userTimezone');
             const syncBtn = document.getElementById('syncBtn');
             const copyBtn = document.getElementById('copyBtn');
-            
+
             let timezoneOffset = 8;
             let currentNumber = "------";
+
+            // ★ 适配优化：lastMinute 跟踪，确保精确在分钟边界更新
+            let lastMinute = -1;
 
             // 时区选择
             timezoneSelect.addEventListener('change', () => {
                 timezoneOffset = parseInt(timezoneSelect.value);
                 userTimezone.textContent = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+                lastMinute = -1; // 强制刷新
                 updateDisplay();
             });
-            
+
             // 同步时间按钮
             syncBtn.addEventListener('click', () => {
                 syncBtn.classList.add('glow');
                 setTimeout(() => {
                     syncBtn.classList.remove('glow');
                 }, 2000);
+                lastMinute = -1; // 强制刷新
                 updateDisplay();
             });
-            
+
             // 复制按钮
             copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(currentNumber)
@@ -644,29 +629,30 @@
                         }, 2000);
                     });
             });
-            
-            // 生成6位随机数
+
+            // ★ 核心算法：与 Family Internet 登录页完全一致
+            // SHA-256/384/512 组合哈希，每分钟生成一个6位数字
             async function generateSecureRandom() {
                 try {
                     const now = new Date();
                     const utcTimestamp = Math.floor(now.getTime() / 60000);
-                    
+
                     const encoder = new TextEncoder();
                     const hashes = await Promise.all([
                         crypto.subtle.digest('SHA-256', encoder.encode(`${utcTimestamp}SALT1${timezoneOffset}`)),
                         crypto.subtle.digest('SHA-384', encoder.encode(`${utcTimestamp}SALT2${timezoneOffset}`)),
                         crypto.subtle.digest('SHA-512', encoder.encode(`${utcTimestamp}SALT3${timezoneOffset}`))
                     ]);
-                    
+
                     const combined = new Uint8Array([
                         ...new Uint8Array(hashes[0]),
                         ...new Uint8Array(hashes[1]),
                         ...new Uint8Array(hashes[2])
                     ]);
-                    
+
                     const finalHash = await crypto.subtle.digest('SHA-256', combined);
                     const bytes = new Uint8Array(finalHash);
-                    
+
                     let num = 0;
                     for (let i = 0; i < 4; i++) {
                         num = (num << 8) | bytes[i];
@@ -677,22 +663,22 @@
                     return 123456;
                 }
             }
-            
+
             // 数字滚动效果
             async function updateDigitalDisplay(newNumber) {
                 const newStr = newNumber.toString();
                 currentNumber = newStr;
-                
+
                 const digitColumns = randomNumber.querySelectorAll('.digit-column');
-                
+
                 for (let i = 0; i < 6; i++) {
                     const currentDigit = digitColumns[i].querySelector('.digit-scroll').textContent;
                     const newDigit = newStr[i];
-                    
+
                     if (currentDigit !== newDigit) {
                         const scrollElement = digitColumns[i].querySelector('.digit-scroll');
                         scrollElement.style.transform = `translateY(${currentDigit === '-' ? '0' : '-70px'})`;
-                        
+
                         setTimeout(() => {
                             scrollElement.textContent = newDigit;
                             scrollElement.style.transform = 'translateY(0)';
@@ -700,38 +686,41 @@
                     }
                 }
             }
-            
-            // 更新时间显示
+
+            // ★ 适配优化：精确时间显示 + 分钟边界检测
             function updateTimeDisplay() {
                 const now = new Date();
                 const utcTime = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
                 const serverTimeObj = new Date(utcTime.getTime() + timezoneOffset * 3600000);
-                
+
                 const timeStr = serverTimeObj.toTimeString().substring(0, 8);
                 serverTime.textContent = timeStr;
-                
+
                 const seconds = 60 - serverTimeObj.getSeconds();
                 timeRemaining.textContent = `${seconds}秒`;
-                
-                if (seconds === 60) {
+
+                // ★ 关键：使用 lastMinute 跟踪确保精确更新
+                const currentMinute = Math.floor(serverTimeObj.getTime() / 60000);
+                if (currentMinute !== lastMinute) {
+                    lastMinute = currentMinute;
                     updateRandomNumber();
                 }
             }
-            
+
             // 更新随机数
             async function updateRandomNumber() {
                 const num = await generateSecureRandom();
                 updateDigitalDisplay(num);
             }
-            
+
             // 更新所有显示
             function updateDisplay() {
                 updateTimeDisplay();
-                updateRandomNumber();
             }
-            
+
             // 初始化
             updateDisplay();
+            // ★ 每秒更新时间显示，通过 lastMinute 自动检测分钟切换
             setInterval(updateTimeDisplay, 1000);
         }
     </script>
