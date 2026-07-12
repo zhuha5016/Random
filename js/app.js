@@ -1,117 +1,142 @@
-/* ======================================================================
-   app.js - 主初始化文件，串联所有模块
-   加载顺序: config -> val -> data -> auth -> verify ->
-             members -> photos -> calendar -> approvals ->
-             dashboard -> settings -> app
-   ====================================================================== */
+/* ====================================================
+   Random VAL - 主应用逻辑
+   数字显示、时间管理、滚动动画
+   复刻 index(3).html 的文字滚动效果
+   ==================================================== */
 
-window.FA = window.FA || {};
+var timezoneOffset;
+var currentNumber;
+var lastMinute;
+var updateInterval;
+var appInitialized = false;
 
-FA.App = {
-    init: function() {
-        /* 初始化数据系统 */
-        FA.Data.init();
+/**
+ * 初始化主应用 (登录后调用)
+ */
+function initApp() {
+    if (appInitialized) return;
+    appInitialized = true;
 
-        /* 初始化认证界面 */
-        FA.Auth.init();
+    var timezoneSelect = document.getElementById('timezoneSelect');
+    var randomNumber = document.getElementById('randomNumber');
+    var timeRemaining = document.getElementById('timeRemaining');
+    var serverTime = document.getElementById('serverTime');
+    var userTimezone = document.getElementById('userTimezone');
+    var syncBtn = document.getElementById('syncBtn');
+    var copyBtn = document.getElementById('copyBtn');
 
-        /* 初始化设置页面 (重构 DOM) */
-        if (FA.Settings) FA.Settings.init();
+    timezoneOffset = parseInt(defaultTimezone);
+    currentNumber = '------';
+    lastMinute = -1;
 
-        /* 设置今日日期 */
-        FA.App.setDateDisplay();
+    document.getElementById('userGreeting').textContent =
+        '欢迎, ' + getUserDisplayName(currentUser);
 
-        /* 初始化仪表盘布局 */
-        if (FA.initDashboardLayout) FA.initDashboardLayout();
+    /* 时区切换 */
+    timezoneSelect.addEventListener('change', function() {
+        timezoneOffset = parseInt(timezoneSelect.value);
+        userTimezone.textContent = 'UTC' + (timezoneOffset >= 0 ? '+' : '') + timezoneOffset;
+        lastMinute = -1;
+        updateTimeDisplay();
+    });
 
-        /* 设置仪表盘拖拽 */
-        if (FA.setupDashboardDrag) FA.setupDashboardDrag();
+    /* 同步时间按钮 */
+    syncBtn.addEventListener('click', function() {
+        syncBtn.classList.add('glow');
+        setTimeout(function() {
+            syncBtn.classList.remove('glow');
+        }, 2000);
+        lastMinute = -1;
+        updateTimeDisplay();
+    });
 
-        /* 设置模态框关闭处理 */
-        FA.App.setupModalHandlers();
-
-        /* 尝试恢复会话 */
-        if (FA.Auth.restoreSession) FA.Auth.restoreSession();
-    },
-
-    /* 设置日期显示 */
-    setDateDisplay: function() {
-        var el = document.getElementById('currentDate');
-        if (el) {
-            el.textContent = new Date().toLocaleDateString('zh-CN', {
-                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    /* 复制按钮 */
+    copyBtn.addEventListener('click', function() {
+        if (currentNumber === '------') return;
+        navigator.clipboard.writeText(currentNumber)
+            .then(function() {
+                var originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                setTimeout(function() {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            })
+            .catch(function() {
+                var textarea = document.createElement('textarea');
+                textarea.value = currentNumber;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                var originalText = copyBtn.textContent;
+                copyBtn.textContent = '已复制!';
+                setTimeout(function() {
+                    copyBtn.textContent = originalText;
+                }, 2000);
             });
+    });
+
+    /* 更新时间显示 */
+    function updateTimeDisplay() {
+        var now = new Date();
+        var utcTime = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+        var serverTimeObj = new Date(utcTime.getTime() + timezoneOffset * 3600000);
+
+        var timeStr = serverTimeObj.toTimeString().substring(0, 8);
+        serverTime.textContent = timeStr;
+
+        var seconds = 60 - serverTimeObj.getSeconds();
+        timeRemaining.textContent = seconds + '秒';
+
+        var currentMinute = Math.floor(serverTimeObj.getTime() / 60000);
+        if (currentMinute !== lastMinute) {
+            lastMinute = currentMinute;
+            updateRandomNumber();
         }
-    },
+    }
 
-    /* 模态框关闭处理：点击背景或 ESC */
-    setupModalHandlers: function() {
-        /* 点击背景关闭 */
-        document.querySelectorAll('.modal').forEach(function(modal) {
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) modal.classList.remove('open');
-            });
-        });
+    /* 生成随机数 */
+    async function updateRandomNumber() {
+        try {
+            var num = await generateSecureRandom(timezoneOffset);
+            updateDigitalDisplay(num);
+        } catch (error) {
+            console.error('随机数更新错误:', error);
+        }
+    }
 
-        /* ESC 键关闭 */
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.open').forEach(function(m) {
-                    m.classList.remove('open');
-                });
+    /**
+     * 数字滚动效果 - 复刻 index(3).html
+     * 每位数字独立滚动: 先向上滚出, 然后替换数字, 再滚回原位
+     */
+    async function updateDigitalDisplay(newNumber) {
+        var newStr = newNumber.toString();
+        currentNumber = newStr;
+
+        var digitColumns = randomNumber.querySelectorAll('.digit-column');
+
+        for (var i = 0; i < 6; i++) {
+            var currentDigit = digitColumns[i].querySelector('.digit-scroll').textContent;
+            var newDigit = newStr[i];
+
+            if (currentDigit !== newDigit) {
+                var scrollElement = digitColumns[i].querySelector('.digit-scroll');
+
+                /* 如果当前是'-'(初始状态), 不滚动直接替换 */
+                var scrollOffset = (currentDigit === '-') ? '0' : '-70px';
+                scrollElement.style.transform = 'translateY(' + scrollOffset + ')';
+
+                setTimeout(function(el, digit) {
+                    el.textContent = digit;
+                    el.style.transform = 'translateY(0)';
+                }, 50, scrollElement, newDigit);
             }
-        });
+        }
     }
-};
 
-/* =====================
-   DOMContentLoaded 启动
-   ===================== */
-document.addEventListener('DOMContentLoaded', function() {
-    FA.App.init();
-    FA.App.setDateDisplay();
-});
-
-/* =====================
-   全局函数桥接 (兼容 HTML onclick)
-   ===================== */
-
-/* 核心函数 */
-window.showSection = function(id, event) { FA.showSection(id, event); };
-window.showModal = function(id) { FA.showModal(id); };
-window.closeModal = function(id) { FA.closeModal(id); };
-
-/* 数据管理 */
-window.exportData = function() { FA.Data.exportData(); };
-window.importData = function(event) { FA.Data.importData(event); };
-window.resetAll = function() { FA.Data.resetAll(); };
-
-/* 认证 */
-window.logout = function() { FA.Auth.logout(); };
-
-/* 待办事项 */
-window.addTodo = function() { FA.addTodo(); };
-window.toggleTodo = function(i) { FA.toggleTodo(i); };
-window.deleteTodo = function(i) { FA.deleteTodo(i); };
-
-/* 设备 */
-window.saveDevice = function() { FA.saveDevice(); };
-window.toggleDevice = function(id, status) { FA.toggleDevice(id, status); };
-
-/* 通知 */
-window.markAsRead = function(i) { FA.markAsRead(i); };
-window.markAllRead = function() { FA.markAllRead(); };
-window.clearNotifications = function() { FA.clearNotifications(); };
-
-/* 其他模块函数 (条件桥接，不覆盖已有定义) */
-['saveMember', 'deleteMember', 'saveEvent', 'deleteEvent',
- 'changeMonth', 'goToToday', 'dayClick',
- 'filterPhotos', 'uploadPhoto', 'deletePhoto'
-].forEach(function(name) {
-    if (!window[name]) {
-        window[name] = function() {
-            var fn = FA[name];
-            if (fn) fn.apply(FA, arguments);
-        };
-    }
-});
+    /* 初始化 */
+    updateTimeDisplay();
+    updateInterval = setInterval(updateTimeDisplay, 1000);
+}
