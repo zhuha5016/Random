@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>时空同步安全随机数</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ========================================
+     Login Screen - Glassmorphism Card
+     ======================================== -->
+<div class="login-container" id="loginContainer">
+    <h1>时空同步安全随机数</h1>
+
+    <div class="input-group">
+        <input type="text" id="usernameInput" class="login-input" placeholder="Username" autocomplete="off">
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="passwordInput" class="login-input" placeholder="Password" autocomplete="off">
+    </div>
+
+    <div class="file-input-group">
+        <input type="text" id="filePathDisplay" class="login-input" placeholder="No file selected" readonly>
+        <button class="file-input-btn" id="fileInputBtn">Select File</button>
+        <input type="file" id="fileInput" class="file-input-hidden" accept=".txt">
+    </div>
+
+    <div class="btn-container" id="btnContainer">
+        <button class="login-btn" id="loginBtn">Enter</button>
+        <button class="save-btn" id="saveBtn">Save Auth File</button>
+    </div>
+
+    <div class="error-message" id="loginError"></div>
+    <div class="success-message" id="loginSuccess"></div>
+</div>
+
+<!-- ========================================
+     Main Display
+     ======================================== -->
+<div class="main-container" id="mainContainer">
+    <h1>Random Number</h1>
+    <div class="user-greeting" id="userGreeting">Welcome</div>
+
+    <div class="timezone-select">
+        <select id="timezoneSelect">
+            <option value="0">UTC+0 London</option>
+            <option value="8" selected>UTC+8 Beijing</option>
+            <option value="-5">UTC-5 New York</option>
+            <option value="9">UTC+9 Tokyo</option>
+            <option value="1">UTC+1 Paris</option>
+        </select>
+    </div>
+
+    <div class="digital-display">
+        <div class="digital-number" id="randomNumber">
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+            <div class="digit-column"><div class="digit-scroll">-</div></div>
+        </div>
+    </div>
+
+    <div class="time-info">
+        <div class="time-box">
+            <div>Server Time</div>
+            <div id="serverTime">00:00:00</div>
+        </div>
+        <div class="time-box">
+            <div>Remaining</div>
+            <div id="timeRemaining">60s</div>
+        </div>
+        <div class="time-box">
+            <div>Timezone</div>
+            <div id="userTimezone">UTC+8</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="syncBtn" class="glow">Sync Time</button>
+        <button id="copyBtn">Copy Number</button>
+    </div>
+</div>
+
+<!-- ========================================
+     JavaScript Files (load order matters)
+     ======================================== -->
+<script src="js/config.js"></script>
+<script src="js/val.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+
+<!-- ========================================
+     Login UI Management
+     ======================================== -->
+<script>
+(function() {
+    var loginContainer = document.getElementById('loginContainer');
+    var mainContainer = document.getElementById('mainContainer');
+    var usernameInput = document.getElementById('usernameInput');
+    var passwordInput = document.getElementById('passwordInput');
+    var loginBtn = document.getElementById('loginBtn');
+    var saveBtn = document.getElementById('saveBtn');
+    var loginError = document.getElementById('loginError');
+    var loginSuccess = document.getElementById('loginSuccess');
+    var fileInputBtn = document.getElementById('fileInputBtn');
+    var fileInput = document.getElementById('fileInput');
+    var filePathDisplay = document.getElementById('filePathDisplay');
+
+    var pendingLogin = false;
+
+    /* Show save button after password validation */
+    function showSaveButton() {
+        saveBtn.style.display = 'block';
+        loginSuccess.textContent = 'Password correct. Save auth file or click Enter to login';
+        loginError.textContent = '';
+        pendingLogin = true;
+    }
+
+    /* Enter main system */
+    function enterSystem() {
+        loginContainer.style.display = 'none';
+        mainContainer.style.display = 'block';
+        initApp();
+    }
+
+    /* Login button click */
+    loginBtn.addEventListener('click', function() {
+        var username = usernameInput.value.trim().toLowerCase();
+        var password = passwordInput.value;
+
+        if (pendingLogin && validateCredentials(username, password)) {
+            // Second click after save button shown
+            currentUser = username;
+            enterSystem();
+            return;
+        }
+
+        if (validateCredentials(username, password)) {
+            currentUser = username;
+            showSaveButton();
+        } else {
+            if (!username) {
+                loginError.textContent = 'Enter username';
+            } else if (!accounts[username]) {
+                loginError.textContent = 'User not found';
+            } else {
+                loginError.textContent = 'Wrong password';
+            }
+            passwordInput.value = '';
+            passwordInput.focus();
+            pendingLogin = false;
+            saveBtn.style.display = 'none';
+        }
+    });
+
+    /* Save auth file button */
+    saveBtn.addEventListener('click', async function() {
+        var username = usernameInput.value.trim().toLowerCase();
+        var password = passwordInput.value;
+
+        if (!validateCredentials(username, password)) {
+            loginError.textContent = 'Credentials invalid, cannot save';
+            return;
+        }
+
+        try {
+            await saveAuthFile(username);
+            loginSuccess.textContent = 'Auth file saved as auth_' + username + '.txt. Click Enter to login.';
+            currentUser = username;
+        } catch (error) {
+            loginError.textContent = 'Save failed: ' + error.message;
+        }
+    });
+
+    /* Enter key to submit */
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
+
+    usernameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            passwordInput.focus();
+        }
+    });
+
+    /* File input button */
+    fileInputBtn.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    /* File selection handler */
+    fileInput.addEventListener('change', async function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.txt')) {
+            loginError.textContent = 'Select a .txt file';
+            return;
+        }
+
+        filePathDisplay.value = file.name;
+
+        try {
+            var content = await readFileAsText(file);
+            var result = await validateAuthFile(content);
+
+            if (result.valid) {
+                loginError.textContent = '';
+                loginSuccess.textContent = 'Auth file valid. Logging in as ' + result.username + '...';
+                currentUser = result.username;
+                usernameInput.value = result.username;
+                setTimeout(function() {
+                    enterSystem();
+                }, 500);
+            } else {
+                loginError.textContent = 'Invalid auth file';
+                loginSuccess.textContent = '';
+            }
+        } catch (error) {
+            console.error('File read error:', error);
+            loginError.textContent = 'Failed to read file';
+        }
+    });
+
+    /* Focus username on load */
+    usernameInput.focus();
+})();
+</script>
+
+</body>
+</html>
