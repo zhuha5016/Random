@@ -9,11 +9,11 @@ window.FA = window.FA || {};
    账号体系 (用户名改为英文)
    ===================== */
 FA.accounts = {
-    "zhuha":      { password: "zhuha106424", role: "superadmin", name: "zhuha",   nameCn: "朱哈",   phone: "138****0001", email: "zhuha@family.local", gender: "男" },
-    "zhunengxin": { password: "19770714",   role: "senior",    name: "zhunengxin", nameCn: "朱能新", phone: "139****0002", email: "zhunengxin@family.local", gender: "男" },
-    "huguili":    { password: "19800328",   role: "senior",    name: "huguili",    nameCn: "胡桂丽", phone: "137****0003", email: "huguili@family.local", gender: "女" },
-    "zhurenmin":  { password: "19430513",   role: "user",      name: "zhurenmin",  nameCn: "朱人民", phone: "136****0004", email: "zhurenmin@family.local", gender: "男" },
-    "luoaiyu":    { password: "19520606",   role: "user",      name: "luoaiyu",    nameCn: "罗爱玉", phone: "135****0005", email: "luoaiyu@family.local", gender: "女" }
+    "zhuha":      { password: "zhuha106424", role: "superadmin", name: "zhuha",   nameCn: "朱淏",   phone: "18250857696", email: "zhuha@family.local", gender: "男" },
+    "zhunengxin": { password: "19770714",   role: "senior",    name: "zhunengxin", nameCn: "朱能新", phone: "13799287164", email: "zhunengxin@family.local", gender: "男" },
+    "huguili":    { password: "19800328",   role: "senior",    name: "huguili",    nameCn: "胡桂丽", phone: "13606086703", email: "huguili@family.local", gender: "女" },
+    "zhurenmin":  { password: "19430513",   role: "user",      name: "zhurenmin",  nameCn: "朱仁民", phone: "18950996905", email: "zhurenmin@family.local", gender: "男" },
+    "luoaiyu":    { password: "19520606",   role: "user",      name: "luoaiyu",    nameCn: "罗爱玉", phone: "18950997559", email: "luoaiyu@family.local", gender: "女" }
 };
 
 /* 角色显示名映射 */
