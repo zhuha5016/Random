@@ -632,6 +632,14 @@ async function fetchFISAccounts() {
 function applySyncedAccounts(remote) {
     if (!remote || typeof remote !== 'object') return false;
     var changed = false;
+    /* 1) 删除本地有、远程没有的账号 (账号被删除时同步移除) */
+    Object.keys(accounts).forEach(function(username) {
+        if (!remote[username]) {
+            delete accounts[username];
+            changed = true;
+        }
+    });
+    /* 2) 添加 / 更新远程账号到本地 */
     Object.keys(remote).forEach(function(username) {
         var remoteAcc = remote[username];
         if (!remoteAcc || !remoteAcc.password) return;
