@@ -406,7 +406,8 @@ body.main-active {
 .gh-token-row button:hover { transform: translateY(-1px); }
 .btn-gh-clear { background: linear-gradient(45deg, #e74c3c, #c0392b) !important; }
 .gh-token-msg { font-size: 0.78rem; color: #28a745; margin-top: 8px; min-height: 1em; }
-
+.sync-status-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.sync-status-row button { padding: 6px 14px; font-size: 0.78rem; }
 
 .glow {
     animation: glow 1.5s ease-in-out infinite alternate;
@@ -577,6 +578,10 @@ body.main-active {
             <button id="ghTokenClear" class="btn-gh-clear">清除</button>
         </div>
         <div id="ghTokenMsg" class="gh-token-msg"></div>
+        <div class="sync-status-row">
+            <button id="syncAccountsBtn" class="btn-gh-save">立即同步账号</button>
+            <span id="syncAccountsMsg" class="gh-token-msg"></span>
+        </div>
     </div>
 </div>
 
@@ -591,6 +596,82 @@ var accounts = {
     "zhurenmin":  { password: "19430513",   name: "朱人民" },
     "luoaiyu":    { password: "19520606",   name: "罗爱玉" }
 };
+
+/* ======================================================================
+   FIS 账号同步配置
+   从家庭主网 FIS 的 GitHub 同步数据文件读取 fi_accounts,
+   实现新注册账号 / 密码修改 / 头像信息 与主网实时同步
+   ====================================================================== */
+var FIS_REPO_OWNER = 'zhuha5016';
+var FIS_REPO_NAME = 'FIS';
+var FIS_DATA_PATH = 'data/family-data.json';
+var GH_TOKEN_KEY = 'rdm_gh_token';
+var _lastAccountSync = '未同步';
+
+async function fetchFISAccounts() {
+    var token = '';
+    try { token = localStorage.getItem(GH_TOKEN_KEY) || ''; } catch (e) {}
+    var url = 'https://api.github.com/repos/' + encodeURIComponent(FIS_REPO_OWNER) + '/' +
+              encodeURIComponent(FIS_REPO_NAME) + '/contents/' + encodeURIComponent(FIS_DATA_PATH);
+    var headers = { 'Accept': 'application/vnd.github.v3+json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    var res = await fetch(url, { headers: headers });
+    if (!res.ok) throw new Error('GitHub API ' + res.status);
+    var json = await res.json();
+    if (!json || !json.content) throw new Error('返回内容为空');
+
+    var binary = atob(json.content.replace(/\s/g, ''));
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var text = new TextDecoder('utf-8').decode(bytes);
+    var payload = JSON.parse(text);
+    return (payload.data && payload.data.fi_accounts) ? payload.data.fi_accounts : null;
+}
+
+function applySyncedAccounts(remote) {
+    if (!remote || typeof remote !== 'object') return false;
+    var changed = false;
+    Object.keys(remote).forEach(function(username) {
+        var remoteAcc = remote[username];
+        if (!remoteAcc || !remoteAcc.password) return;
+        var localAcc = accounts[username];
+        if (!localAcc || JSON.stringify(localAcc) !== JSON.stringify(remoteAcc)) {
+            accounts[username] = remoteAcc;
+            changed = true;
+        }
+    });
+    return changed;
+}
+
+async function syncAccounts() {
+    var msgEl = document.getElementById('syncAccountsMsg');
+    try {
+        var remote = await fetchFISAccounts();
+        if (remote) {
+            applySyncedAccounts(remote);
+            _lastAccountSync = new Date().toLocaleTimeString('zh-CN');
+            if (msgEl) {
+                msgEl.textContent = '账号已同步: ' + _lastAccountSync + ' · 共 ' + Object.keys(accounts).length + ' 个账号';
+                msgEl.style.color = '#28a745';
+            }
+            /* 如果已登录, 刷新用户标识以显示最新名称/头像 */
+            if (currentUser && accounts[currentUser]) {
+                var displayName = getUserDisplayName(currentUser);
+                document.getElementById('badgeName').textContent = displayName;
+                document.getElementById('badgeAvatar').textContent = displayName.charAt(0);
+            }
+            return true;
+        }
+    } catch (e) {
+        console.error('[RDM] 账号同步失败:', e);
+        if (msgEl) {
+            msgEl.textContent = '同步失败: ' + e.message + ' (将使用本地账号)';
+            msgEl.style.color = '#e74c3c';
+        }
+    }
+    return false;
+}
 
 var AUTH_FILE_PREFIX = "=== AUTH FILE DO NOT MODIFY ===";
 var currentUser = null;
@@ -656,7 +737,7 @@ function validateCredentials(username, password) {
 
 function getUserDisplayName(username) {
     var account = accounts[username];
-    return account ? account.name : username;
+    return account ? (account.nameCn || account.name || username) : username;
 }
 
 /* ======================================================================
@@ -985,7 +1066,6 @@ function initApp() {
     var ghTokenCopy  = document.getElementById('ghTokenCopy');
     var ghTokenClear = document.getElementById('ghTokenClear');
     var ghTokenMsg   = document.getElementById('ghTokenMsg');
-    var GH_TOKEN_KEY = 'rdm_gh_token';
 
     try {
         if (localStorage.getItem(GH_TOKEN_KEY)) {
@@ -1026,6 +1106,17 @@ function initApp() {
             ghTokenMsg.style.color = '#888';
         } catch (e) {}
     });
+
+    // 账号同步按钮 + 首次自动同步
+    var syncAccountsBtn = document.getElementById('syncAccountsBtn');
+    if (syncAccountsBtn) {
+        syncAccountsBtn.addEventListener('click', function() {
+            syncAccountsBtn.textContent = '同步中...';
+            syncAccounts().then(function() { syncAccountsBtn.textContent = '立即同步账号'; });
+        });
+    }
+    syncAccounts();          // 进入主界面立即同步一次
+    setInterval(syncAccounts, 5000); // 每 5 秒自动同步
 
     // 数字滚动效果
     async function updateDigitalDisplay(newNumber) {
@@ -1084,6 +1175,10 @@ function initApp() {
     updateDisplay();
     setInterval(updateTimeDisplay, 1000);
 }
+
+/* 登录前也尝试同步账号, 使新注册账号可立即登录 */
+syncAccounts();
+setInterval(syncAccounts, 5000);
 </script>
 </body>
 </html>
