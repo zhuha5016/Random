@@ -604,29 +604,43 @@ var accounts = {
    ====================================================================== */
 var FIS_REPO_OWNER = 'zhuha5016';
 var FIS_REPO_NAME = 'FIS';
+var FIS_DATA_BRANCH = 'main';
 var FIS_DATA_PATH = 'data/family-data.json';
 var GH_TOKEN_KEY = 'rdm_gh_token';
 var _lastAccountSync = '未同步';
 
+/* 拉取家庭主网 FIS 的同步数据文件, 读取其中的 fi_accounts。
+   优先用 jsDelivr CDN: 带 CORS 响应头、不受 60次/小时 匿名限流影响、直接返回原始 JSON。
+   失败再回退 api.github.com (带 CORS, 但匿名限流 60次/小时, 仅作兜底, 正常不会触发)。 */
 async function fetchFISAccounts() {
-    var token = '';
-    try { token = localStorage.getItem(GH_TOKEN_KEY) || ''; } catch (e) {}
-    var url = 'https://api.github.com/repos/' + encodeURIComponent(FIS_REPO_OWNER) + '/' +
-              encodeURIComponent(FIS_REPO_NAME) + '/contents/' + encodeURIComponent(FIS_DATA_PATH);
-    var headers = { 'Accept': 'application/vnd.github.v3+json' };
-    if (token) headers['Authorization'] = 'Bearer ' + token;
-
-    var res = await fetch(url, { headers: headers });
-    if (!res.ok) throw new Error('GitHub API ' + res.status);
-    var json = await res.json();
-    if (!json || !json.content) throw new Error('返回内容为空');
-
-    var binary = atob(json.content.replace(/\s/g, ''));
-    var bytes = new Uint8Array(binary.length);
-    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    var text = new TextDecoder('utf-8').decode(bytes);
-    var payload = JSON.parse(text);
-    return (payload.data && payload.data.fi_accounts) ? payload.data.fi_accounts : null;
+    var sources = [
+        { url: 'https://cdn.jsdelivr.net/gh/' + FIS_REPO_OWNER + '/' + FIS_REPO_NAME + '@' + FIS_DATA_BRANCH + '/' + FIS_DATA_PATH, raw: true },
+        { url: 'https://api.github.com/repos/' + encodeURIComponent(FIS_REPO_OWNER) + '/' + encodeURIComponent(FIS_REPO_NAME) + '/contents/' + encodeURIComponent(FIS_DATA_PATH), raw: false }
+    ];
+    var lastErr = null;
+    for (var s = 0; s < sources.length; s++) {
+        try {
+            var res = await fetch(sources[s].url, { cache: 'no-store' });
+            if (!res.ok) { lastErr = 'HTTP ' + res.status; continue; }
+            var text;
+            if (sources[s].raw) {
+                text = await res.text();
+            } else {
+                var json = await res.json();
+                if (!json || !json.content) { lastErr = '返回内容为空'; continue; }
+                var binary = atob(json.content.replace(/\s/g, ''));
+                var bytes = new Uint8Array(binary.length);
+                for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                text = new TextDecoder('utf-8').decode(bytes);
+            }
+            if (!text || !text.trim()) { lastErr = '返回内容为空'; continue; }
+            var payload = JSON.parse(text);
+            return (payload.data && payload.data.fi_accounts) ? payload.data.fi_accounts : null;
+        } catch (e) {
+            lastErr = e.message || 'fetch 失败';
+        }
+    }
+    throw new Error(lastErr || '同步失败');
 }
 
 function applySyncedAccounts(remote) {
@@ -670,15 +684,23 @@ async function syncAccounts() {
                 document.getElementById('badgeAvatar').textContent = displayName.charAt(0);
             }
             return true;
+        } else {
+            /* 云端暂无账号数据: 使用本地内置账号, 不打扰用户 (灰色提示) */
+            if (msgEl) {
+                msgEl.textContent = '云端暂无账号数据，使用本地账号 (' + Object.keys(accounts).length + ' 个)';
+                msgEl.style.color = '#888';
+            }
+            return false;
         }
     } catch (e) {
-        console.error('[RDM] 账号同步失败:', e);
+        console.warn('[RDM] 账号同步暂不可用:', e);
+        /* 抓取失败 (网络/限流/HTTP): 橙色温和提示, 继续使用本地账号, 不弹红色报错 */
         if (msgEl) {
-            msgEl.textContent = '同步失败: ' + e.message + ' (将使用本地账号)';
-            msgEl.style.color = '#e74c3c';
+            msgEl.textContent = '同步暂不可用（' + e.message + '），使用本地账号 (' + Object.keys(accounts).length + ' 个)';
+            msgEl.style.color = '#e6a23c';
         }
+        return false;
     }
-    return false;
 }
 
 var AUTH_FILE_PREFIX = "=== AUTH FILE DO NOT MODIFY ===";
@@ -1124,7 +1146,7 @@ function initApp() {
         });
     }
     syncAccounts();          // 进入主界面立即同步一次
-    setInterval(syncAccounts, 5000); // 每 5 秒自动同步
+    setInterval(syncAccounts, 30000); // 每 30 秒自动同步 (raw 无 API 限流)
 
     // 数字滚动效果
     async function updateDigitalDisplay(newNumber) {
@@ -1186,7 +1208,7 @@ function initApp() {
 
 /* 登录前也尝试同步账号, 使新注册账号可立即登录 */
 syncAccounts();
-setInterval(syncAccounts, 5000);
+setInterval(syncAccounts, 30000);
 </script>
 </body>
 </html>
